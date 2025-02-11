@@ -15,7 +15,7 @@ import { LoggerModule } from '../logger/logger.module';
   ],
   controllers: [UserController],
   providers: [UserService, AuthService, LoggerService],
-  exports: [UserService, MongooseModule],  // <-- Export MongooseModule here
+  exports: [UserService, MongooseModule],
 })
 export class UsersModule {
   configure(consumer: MiddlewareConsumer) {
