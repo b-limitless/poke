@@ -14,6 +14,7 @@ import { AppService } from './app.service';
 import { LoggerModule } from './logger/logger.module';
 import { LoggerService } from './logger/logger.service';
 import { UsersModule } from './users/users.module';
+import { PokemonModule } from './pokemon/pokemon.module';
 
 const cookieSession = require('cookie-session');
 
@@ -31,6 +32,7 @@ const cookieSession = require('cookie-session');
     }),
     LoggerModule,
     UsersModule,
+    PokemonModule
   
   ],
   controllers: [AppController],
