@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from './logger/logger.service';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from "@nestjs/mongoose";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +32,20 @@ async function bootstrap() {
     loggerService.error(`Unhandled Rejection: ${message}\n${stack}`);
     
   });
+
+  const mongooseConnection = app.get<Connection>(getConnectionToken());
+
+  try {
+    if (mongooseConnection.readyState === 1) {
+      loggerService.info("Mongoose connection is successfully established.");
+    } else {
+      loggerService.error(`Mongoose connection is failed, ready state ${mongooseConnection.readyState}`);
+      throw new Error("Mongoose connection failed to initialize.");
+    }
+  } catch (error) {
+    loggerService.error("Mongoose connection error:", error.message);
+    process.exit(1);
+  }
   
   await app.listen(port || 9000);
 }

@@ -14,7 +14,6 @@ export class LoggerService {
     private configService: ConfigService,
     @InjectModel('Log') private logModel: Model<Log>, // Inject the Log model
   ) {
-    console.log('mongo', this.configService.get<string>('MONGODB_URI'))
     const mongodbTransport = new winston.transports.MongoDB({
       db: this.configService.get<string>('MONGODB_URI'), // MongoDB URL
       collection: 'logs',
@@ -22,8 +21,6 @@ export class LoggerService {
       storeHost: true,
       options: { useUnifiedTopology: true },
     });
-
-    
 
     // Initialize winston logger with MongoDB and Console transports
     this.logger = winston.createLogger({
@@ -43,14 +40,6 @@ export class LoggerService {
 
   // Function to save the log to the database and console
   async log(level: string, message: string, metadata: Record<string, any> = {}) {
-    const log = new this.logModel({
-      level,
-      message,
-      timestamp: new Date(),
-      ...metadata,
-    });
-    await log.save(); // Save the log to the MongoDB database
-
     this.logger.log(level, message, metadata); // Log to console and MongoDB
   }
 

@@ -1,100 +1,168 @@
-import { Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Session,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { LoggerService } from 'src/logger/logger.service';
+import { CurrentUser } from 'src/users/decorators/current-user.decorator';
+import { limit } from '../config';
+import { User } from '../users/user.schema';
+import { FavoritePokemonService } from './favorite-pokemon.service';
+import { PokemonDetailsService } from './pokemon-details.service';
 import { PokemonService } from './pokemon.service';
-
-
-import axios from 'axios';
-import { fetchPokemonDetails } from './requests/fetchPokemonDetails';
-import { PokemonModule } from './pokemon.module';
-import { Pokemon } from './pokemon.schema';
-
-const POKE_API_BASE = 'https://pokeapi.co/api/v2/pokemon';
-
-// Function to fetch Pokémon with pagination, storing missing records in the database
-export async function fetchPokemonList(page: number = 0) {
-  const limit = 150;
-  const offset = page * limit;
-
-  try {
-    // Query MongoDB with skip and limit
-    // const existingPokemons = await Pokemon.
-    //   .skip(offset)
-    //   .limit(limit)
-    //   .exec();
-    const existingPokemons = [];
-
-    // If no Pokémon are found, we need to fetch them from the external API
-    if (existingPokemons.length === 0) {
-      const pokemonIds = []; // Store the Pokémon IDs we need to fetch
-
-      // Find the Pokémon IDs that are missing by fetching from the external API
-      const { data } = await axios.get(`${POKE_API_BASE}?offset=${offset}&limit=${limit}`);
-      data.results.forEach((pokemon: { url: string }) => {
-        const id = pokemon.url.split('/').slice(-2, -1)[0]; // Extract Pokémon ID from URL
-        pokemonIds.push(Number(id));
-      });
-    
-      return data; // Return the newly fetched Pokémon
-    }
-
-    // Return the Pokémon if found in the database
-    return existingPokemons;
-  } catch (error) {
-    console.error('Error fetching Pokémon list:', error.message);
-    return [];
-  }
-}
-
-
+import { fetchDetailsAndEvolution } from './utils/fetchDetailsAndEvolution';
+import { fetchPokemonList } from './utils/fetchPokemonList';
+import { searchPokemonByName } from './utils/searchPokemonByName';
 
 @Controller('pokemon')
 export class PokemonController {
-  constructor(private readonly pokemonService: PokemonService) {}
+  constructor(
+    private readonly pokemonService: PokemonService,
+    private readonly favoritePokemonService: FavoritePokemonService,
+    private readonly pokemonDetailService: PokemonDetailsService,
+    private readonly loggerService: LoggerService,
+  ) {}
 
-  // Get a list of Pokémon with pagination (offset and limit)
   @Get('/')
   async getPokemons(
-    @Query('offset') offset = 0, // Default offset to 0
-    @Query('limit') limit = 150,  // Default limit to 150
+    @Query('page') page = 0, // Default offset to 0
   ) {
-    // const offsetNumber = parseInt(offset, 10);
-    // const limitNumber = parseInt(limit as string, 10);
+    const skip = page * limit;
+    try {
+      const getPokemons = await this.pokemonService.find(limit, skip);
 
-    // Call service to fetch paginated pokemons
-    //return await this.pokemonService.getPokemons(offsetNumber, limitNumber);
+      this.loggerService.info(`Poke ${getPokemons}`);
+
+      if (getPokemons.length > 0) {
+        this.loggerService.info(
+          'Pokemon found with query fetchin from local database',
+        );
+        return {
+          results: getPokemons,
+        };
+      }
+      // If empty is returned
+      if (getPokemons.length === 0) {
+        // Fetch from pokemon api and insert to db
+        this.loggerService.info(
+          'Pokemons did not find the query fetching from pokemon api',
+        );
+        const { results, count, next, previous } = (await fetchPokemonList(
+          page,
+        )) as any;
+
+        try {
+          this.loggerService.info('Saving pokemon to local database.');
+          const savePokemons =
+            await this.pokemonService.insertManyPokemon(results);
+
+          return {
+            results: savePokemons,
+            count,
+            next,
+            previous,
+          };
+        } catch (err) {
+          this.loggerService.error(
+            `Could not save pokemons to database ${err.toString()}`,
+          );
+        }
+      }
+    } catch (err) {
+      this.loggerService.error(`Something went wrong ${err.toString()}`);
+    }
 
     try {
-      const getPoke = await fetchPokemonList(0);
-
-      // console.log(getPoke);
-      return getPoke;
-    } catch(err) {  
-      console.error('Could not fetch poke', err);
+    } catch (err) {
+      this.loggerService.error(`Something went wrong ${err.toString()}`);
     }
   }
 
-  // Get details of a single Pokemon by ID
-  @Get(':id')
-  async getPokemonById(@Query('id') id: number) {
-    //return await this.pokemonService.getPokemonById(id);
+  @UseGuards(AuthGuard)
+  @Get('/favorite')
+  async getFavorite(@CurrentUser() user: User, @Session() session: any) {
+    const userId = user.id;
+    try {
+      const getMyFavriotePokemon =
+        this.favoritePokemonService.findByUserId(userId);
+      return getMyFavriotePokemon;
+    } catch (err) {
+      this.loggerService.error(
+        `Could not query favorite pokemon service ${err.toString()}`,
+      );
+    }
+    return user;
   }
 
-  @Get('/favorite') 
-  async getFavorite() {
+  @Post('/favorite/:id')
+  async addToFavorite(@Param('id') pokemonId, @CurrentUser() user: User) {
+    const userId = user.id;
 
+    try {
+      const addFavriote = await this.favoritePokemonService.toggleFavorite(
+        userId,
+        pokemonId,
+      );
+      return addFavriote;
+    } catch (err) {
+      this.loggerService.error(
+        `Could not query favorite pokemon service ${err.toString()}`,
+      );
+    }
   }
 
-  @Post('/favorite/:pokemonId') 
-  async addToFavorite() {
-    
+  @Get('/search/:name')
+  async getPokemon(@Param('name') name) {
+    try {
+      return searchPokemonByName(name);
+    } catch (err) {
+      this.loggerService.error(`Search query error ${err.toString()}`);
+      throw new Error(err);
+    }
   }
 
-  @Delete('/favorite/:pokemonId') 
-  async removeFromFavorite() {
+  @Get('/:id')
+  async getPokemonDetails(@Param('id') id) {
+    try {
+      this.loggerService.info('Searching for pokeom details in local database.');
+      const findDetails = await this.pokemonDetailService.findById(Number(id));
 
+      
+      if(findDetails) {
+        this.loggerService.info('Found pokemon in local database');
+        return findDetails;
+      }
+      if(!findDetails) {
+       this.loggerService.info('Did not find pokemon. Fetching from the pokemon api server.');
+        // Fetch from pokemon server and update the server
+        const fetchDetails =  await fetchDetailsAndEvolution(id);
+        this.loggerService.info('Fetch the details');
+        // Save it to db
+        const saveToDB = this.pokemonDetailService.create(fetchDetails as any); 
+        this.loggerService.info(`Save the details to database ${JSON.stringify(fetchDetails)}`);
+
+        // return saveToDB;
+        return saveToDB;
+      }
+
+     
+    } catch (err) {
+      this.loggerService.error(`Search query error ${err.toString()}`);
+      throw new Error(err);
+    }
   }
 
-  @Get('/search')
-  async search() {
 
+  @Get('/getPoke')
+  async getPoke() {
+    try {
+      const getPoke = await this.pokemonService.find(0, 10);
+      return getPoke;
+    } catch (err) {}
   }
 }

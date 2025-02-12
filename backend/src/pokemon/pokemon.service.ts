@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Pokemon } from './pokemon.schema';
 import { Model } from 'mongoose';
-import { PokemonDetails } from './pokemon-details.schema';
+import { Pokemon } from './pokemon.schema';
 
 @Injectable()
 export class PokemonService {
@@ -16,9 +15,13 @@ export class PokemonService {
     return this.pokemonModel.findOne({ pokemonId }).exec();
   }
 
-//   async findDetailById(pokemonId: number): Promise<Pokemon | null> {
-//     return this.pokemonDetailModel.findOne({pokemonId})
-//   }
+  async find(limit: number, skip: number) {
+    return this.pokemonModel.find({}).skip(skip).limit(limit);
+  }
 
+  async insertManyPokemon(data: Pokemon[]) {
+    return this.pokemonModel.insertMany(data);
+  }
 
+  
 }
