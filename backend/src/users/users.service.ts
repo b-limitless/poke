@@ -16,6 +16,7 @@ export class UserService {
     
   }): Promise<User> {
     const createdUser = new this.userModel(createUserDto);
+    
     return createdUser.save();
   }
 
