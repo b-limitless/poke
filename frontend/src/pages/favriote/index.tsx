@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { APIs } from "utils/apis";
 import { request } from "utils/request";
 import ErrorText from "components/Help/ErrorText";
+import useCurrentUser from "hooks/useCurrentUser";
+import { useEffect, useState } from "react";
+import PokemonCard from "layouts/pokemon-card";
 
 const logOutUser = async () => {
   try {
@@ -18,31 +21,70 @@ const logOutUser = async () => {
   }
 };
 
-export default function Dashboard() {
+export default function Favorite() {
+  const [myFavriotes, setMyFavriote] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
   // Lets make request to get the current user
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const {
-    mutate: logOutUserMutation,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: logOutUser,
-    onSuccess: () => {
-      navigate("/signin");
-    },
-  });
+  // const {
+  //   mutate: logOutUserMutation,
+  //   isPending,
+  //   isError,
+  //   error,
+  // } = useMutation({
+  //   mutationFn: logOutUser,
+  //   onSuccess: () => {
+  //     navigate("/signin");
+  //   },
+  // });
 
+  // const logouthandler = () => {
+  //   // Run mutation
+  //   logOutUserMutation();
+  // };
 
-  const logouthandler = () => {
-    // Run mutation
-    logOutUserMutation();
+  useCurrentUser({});
+
+  const fetchFevorites = async () => {
+    setLoading(true);
+    try {
+      const response = await request({
+        url: `http://localhost:9000/pokemon/favorite`,
+        method: "get",
+      });
+      setMyFavriote(response);
+      console.log("Fetched favorites");
+    } catch (err) {
+      console.error(`Could not update favriote`, err);
+    }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    fetchFevorites();
+  }, [])
+
+  console.log('fav', myFavriotes)
 
   return (
     <Template>
-     {isError && (
+      
+        {!loading &&
+          myFavriotes.length > 0 &&
+          myFavriotes.map((pokemon: any, i) => (
+            <PokemonCard
+              key={pokemon.pokemonId}
+              pokemon={pokemon}
+              toggleFavorite={() => {}}
+              onHover={() => {}}
+              backgroundColor={"green"}
+              myFavriotes={[]}
+            />
+          ))}
+     
+      {/* {isError && (
           <ErrorText 
           style={{padding: '1rem 0 1rem 0', textAlign:'center'}}
           text={error?.message || "Something went wrong"} />
@@ -56,8 +98,8 @@ export default function Dashboard() {
           type="secondary"
         >
           Logout
-        </CustomLoadingButton>
-
+        </CustomLoadingButton> */}
+      Hello World
     </Template>
   );
 }

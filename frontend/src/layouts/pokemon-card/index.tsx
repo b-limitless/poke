@@ -56,7 +56,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({myFavriotes, pokemon, toggleFa
             <p><strong>Weight:</strong> 69</p>
           </div>
 
-           {isFavorite ? (
+           {myFavriotes.includes(pokemonId) ? (
               <Favorite sx={{ color: "red" }} onClick={() => toggleFavorite(pokemonId)}/> // Filled heart when favorite
             ) : (
               <FavoriteBorder sx={{ color: "gray" }} onClick={() => toggleFavorite(pokemonId)}/> // Outline heart when not favorite

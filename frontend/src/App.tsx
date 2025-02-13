@@ -9,7 +9,7 @@ import Home from "pages/home/Home";
 
 const Signin = lazy(() => import("pages/auth/signin/signin"));
 const Signup = lazy(() => import("pages/auth/signup/signup"));
-const Favriote = lazy(() => import("pages/favriote"));
+const Favorite = lazy(() => import("pages/favriote"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +32,7 @@ function App() {
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/Favriote" element={<Favriote />} />
+              <Route path="/favorite" element={<Favorite />} />
             </Route>
           </Routes>
         </Suspense>
