@@ -50,7 +50,7 @@ export default function Create() {
   } = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      navigate("/dashboard");
+      navigate("/");
       // Perform any other success actions here
     },
   });

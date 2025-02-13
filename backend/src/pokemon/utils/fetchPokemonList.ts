@@ -1,6 +1,6 @@
 import { POKE_API_BASE } from "src/config";
 import axios from "axios";
-const limit = 5;
+import { limit } from "../../config";
 export async function fetchPokemonList(page: number = 0) {
     const offset = page * limit;
   

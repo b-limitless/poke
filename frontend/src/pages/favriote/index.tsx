@@ -41,7 +41,7 @@ export default function Dashboard() {
   };
 
   return (
-    <Template message="Welcome to the application.">
+    <Template>
      {isError && (
           <ErrorText 
           style={{padding: '1rem 0 1rem 0', textAlign:'center'}}

@@ -3,13 +3,13 @@ import { useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { request } from "utils/request";
 
-export default function useCurrentUser() {
+export default function useCurrentUser({shouldNavigate = true}: {shouldNavigate?: boolean}) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const navigateToSignIn = useCallback(() => {
-    navigate("/signin");
+    shouldNavigate && navigate("/signin");
   }, [navigate]);
 
   const fetchCurrentUser = useCallback(async () => {
@@ -24,8 +24,9 @@ export default function useCurrentUser() {
       console.log(`An unknown error occurred: ${err}`);
       setIsAuthenticated(false);
     } finally {
-      setIsLoading(false);
+      
     }
+    setIsLoading(false);
   }, [navigateToSignIn]);
 
   useEffect(() => {

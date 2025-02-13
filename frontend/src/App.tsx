@@ -9,11 +9,20 @@ import Home from "pages/home/Home";
 
 const Signin = lazy(() => import("pages/auth/signin/signin"));
 const Signup = lazy(() => import("pages/auth/signup/signup"));
-const Dashboard = lazy(() => import("pages/dashboard"));
+const Favriote = lazy(() => import("pages/favriote"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Prevent refetch on window focus
+      refetchOnReconnect: false, // Prevent refetch on reconnect
+      refetchInterval: false, // Disable polling
+    },
+  },
+});
 
 function App() {
+ 
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -23,7 +32,7 @@ function App() {
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/Favriote" element={<Favriote />} />
             </Route>
           </Routes>
         </Suspense>

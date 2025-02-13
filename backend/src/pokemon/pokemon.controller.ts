@@ -99,6 +99,25 @@ export class PokemonController {
     return user;
   }
 
+  @UseGuards(AuthGuard)
+  @Get('/favorite_ids')
+  async getMyFavoritePokemonIds(@CurrentUser() user: User, @Session() session: any) {
+    const userId = user.id;
+    try {
+      const getMyFavriotePokemon =
+        this.favoritePokemonService.getMyFavoritePokemonIds(userId);
+      return getMyFavriotePokemon;
+    } catch (err) {
+      this.loggerService.error(
+        `Could not query favorite pokemon service ${err.toString()}`,
+      );
+    }
+    return user;
+  }
+
+
+  
+
   @Post('/favorite/:id')
   async addToFavorite(@Param('id') pokemonId, @CurrentUser() user: User) {
     const userId = user.id;

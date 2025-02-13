@@ -6,5 +6,8 @@ export const APIs  = {
         currentUser: `${BASE_URI}/users/currentUser`, 
         signout: `${BASE_URI}/users/signout`, 
         signin: `${BASE_URI}/users/signin`, 
+    }, 
+    pokemon: {
+        index: (page:number=0) => `${BASE_URI}/pokemons?page=${page}`
     }
 }

@@ -49,7 +49,7 @@ export default function Signin() {
   } = useMutation({
     mutationFn: signInUser,
     onSuccess: () => {
-      navigate("/dashboard");
+      navigate("/");
       // Perform any other success actions here
     },
   });
