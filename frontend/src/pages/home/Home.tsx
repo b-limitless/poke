@@ -6,13 +6,16 @@ import useScrollToEnd from "hooks/useScrollToEnd";
 import Navigation from "layouts/navigation/navigation";
 import PokemonCard from "layouts/pokemon-card";
 import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
-import { fetchFevoritesIds } from "pages/api-requests/fetchFevorites";
+import { fetchFevorites, fetchFevoritesIds } from "pages/api-requests/fetchFevorites";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { APIs } from "utils/apis";
 import { request } from "utils/request";
 import "./home.scss";
 import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
+import {useDispatch, useSelector} from 'react-redux'
+import { IPokemon, removeFavorite, setFavorites } from "slices/favoritesSlice";
+import { RootState } from "store/store";
 
 interface Pokemon {
   id: number;
@@ -29,6 +32,9 @@ export default function Home() {
   const [page, setPage] = useState(0);
   const [myFavriotes, setMyFavriote] = useState<number[]>([]);
   const [hoveredPokemonId, setHoveredPokemonId] = useState<number>(1);
+  const dispatch = useDispatch();
+  const myFavorites  = useSelector((state:RootState) => state.favorites);
+  
 
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
@@ -54,18 +60,24 @@ export default function Home() {
     setLoadingMore(false);
   };
 
+ 
+
   const {
-    data: myFavriotesIds,
-    error: favIdsError,
-    isLoading: favIdsLoading,
+    data: favorites,
+    error: favoritesError,
+    isLoading: favoritesLoading,
   } = useQuery({
-    queryKey: ["fetchFevoritesIds"],
+    queryKey: ["favorites"],
     queryFn: () => {
       if (!isAuthenticated) return [];
-      return fetchFevoritesIds();
+      return fetchFevorites();
     },
     enabled: isAuthenticated
   });
+
+  useEffect(() => {
+    dispatch(setFavorites(favorites));
+  }, [favorites])
 
  
   const {
@@ -81,9 +93,7 @@ export default function Home() {
       }
     },
     onSuccess: (_data, id) => {
-      setMyFavriote((prev: number[]) =>
-        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-      );
+      dispatch(removeFavorite(Number(id)));
     },
   });
 
@@ -115,11 +125,6 @@ export default function Home() {
     fetchPokemons(page);
   }, [page]);
 
-  useEffect(() => {
-    setMyFavriote(myFavriotesIds);
-  }, [myFavriotesIds]);
-  
-
 
   return (
     <Template>
@@ -136,7 +141,7 @@ export default function Home() {
               toggleFavorite={toggleFavorite}
               onHover={handleHover}
               backgroundColor={"green"}
-              myFavriotes={myFavriotes}
+              myFavriotes={favorites?.map((pokemon:IPokemon) => Number(pokemon.pokemonId)) ?? []}
               details={pokemonDetails ?? detailsInitialState}
               loadingDetails={pokemonDetailsLoading}
               onMouseLeave={() => {}}

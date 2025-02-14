@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define the Pokémon type (you can adjust this based on your structure)
-interface Pokemon {
+export interface IPokemon {
   pokemonId: number;
   name: string;
   imageUrl: string;
@@ -9,8 +9,8 @@ interface Pokemon {
 }
 
 // Define initial state
-interface FavoritesState {
-  favorites: Pokemon[];
+export interface FavoritesState {
+  favorites: IPokemon[];
 }
 
 const initialState: FavoritesState = {
@@ -23,7 +23,7 @@ const favoritesSlice = createSlice({
   initialState,
   reducers: {
     // Add favorite Pokémon
-    addFavorite: (state, action: PayloadAction<Pokemon>) => {
+    addFavorite: (state, action: PayloadAction<IPokemon>) => {
       state.favorites.push(action.payload);
     },
 
@@ -35,8 +35,25 @@ const favoritesSlice = createSlice({
     },
 
     // Set favorites list (useful for initial loading from the backend)
-    setFavorites: (state, action: PayloadAction<Pokemon[]>) => {
+    setFavorites: (state, action: PayloadAction<IPokemon[]>) => {
       state.favorites = action.payload;
+    },
+
+    toggleFavorite: (state, action: PayloadAction<IPokemon>) => {
+      const pokemon = action.payload;
+      const existingFavoriteIndex = state.favorites.findIndex(
+        (fav) => fav.pokemonId === pokemon.pokemonId
+      );
+
+      if (existingFavoriteIndex === -1) {
+        // If it doesn't exist in favorites, add it
+        state.favorites.push(pokemon);
+      } else {
+        // If it exists in favorites, remove it
+        state.favorites = state.favorites.filter(
+          (fav) => fav.pokemonId !== pokemon.pokemonId
+        );
+      }
     },
   },
 });
