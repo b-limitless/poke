@@ -39,19 +39,17 @@ Clone the project repository to your local machine:
 ```bash
 git clone https://github.com/your-username/pokemon-data-management.git
 cd pokemon-data-management
+```
 
 Step 2: Backend Setup
-	1.	Navigate to the backend folder:
+1.	Navigate to the backend folder:
 
 cd backend
 
-
-	2.	Install the necessary dependencies:
+2.	Install the necessary dependencies:
 
 yarn install
-
-
-	3.	Configure the environment variables for MongoDB and CORS.
+3.	Configure the environment variables for MongoDB and CORS.
 In the backend/.env.development file, provide the following variables:
 
 MONGODB_URI=YOUR_MONGODB_ADDRESS
@@ -59,38 +57,35 @@ CORS_ORIGIN=LOCAL_FRONTEND_ADDRESS
 
 Replace YOUR_MONGODB_ADDRESS with your MongoDB connection string and LOCAL_FRONTEND_ADDRESS with your frontend URL (e.g., http://localhost:3000).
 
-	4.	Start the backend server in development mode:
+4.	Start the backend server in development mode:
 
 yarn start:dev
 
 This will run the backend server at http://localhost:9000 (default).
 
 Step 3: Frontend Setup
-	1.	Navigate to the frontend folder:
+1.	Navigate to the frontend folder:
 
 cd frontend
 
-
-	2.	Install the necessary dependencies:
+2.	Install the necessary dependencies:
 
 yarn install
 
-
-	3.	Configure the environment variables for the API URL.
+3.	Configure the environment variables for the API URL.
 In the frontend/.env file, add the following variable:
 
 REACT_APP_API_URL=BACKEND_LOCAL_ADDRESS
 
-
-	4.	Start the frontend server:
+4. Start the frontend server:
 
 yarn start
 
 This will run the frontend application on http://localhost:3000 by default.
 
-Scaling Considerations
+##  Scaling Considerations
 
-Efficient Data Fetching and Caching
+### Efficient Data Fetching and Caching
 
 On the first request, data is fetched from the Pokémon API and stored in MongoDB for future use. For any subsequent requests, the backend API fetches the Pokémon data directly from MongoDB rather than the external Pokémon API. This approach reduces:
 	•	Latency: Local database calls are faster than making outbound API calls.
