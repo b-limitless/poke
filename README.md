@@ -1,5 +1,3 @@
-Got it! You want everything in one continuous block, so you can copy-paste it easily without needing to format anything again. Here’s your updated README.md with all content in a single block:
-
 # Pokemon Data Management Application
 
 This project is designed to manage and display Pokémon data efficiently by fetching it from the Pokémon API and storing it in MongoDB for future use. The application serves as an API server built with **NestJS**, **TypeScript**, and **MongoDB**, while the frontend uses **ReactJS**, **TypeScript**, **MUI**, **SCSS**, and **Webpack**.
