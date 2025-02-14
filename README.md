@@ -37,8 +37,8 @@ Follow these steps to run the backend and frontend locally:
 Clone the project repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/pokemon-data-management.git
-cd pokemon-data-management
+git clone https://github.com/b-limitless/poke.git
+cd poke
 ```
 
 Step 2: Backend Setup
