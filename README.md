@@ -13,18 +13,10 @@ In a scenario where Pokémon data needs to be fetched frequently, fetching from 
 - **Backend**: NestJS, TypeScript, MongoDB
 - **Frontend**: ReactJS, TypeScript, MUI, SCSS, Webpack
 
-## Features
-
-- Efficient Pokémon data management by storing API results in MongoDB.
-- Frontend and backend separated, allowing easy scaling.
-- CORS support for local development environments.
-- Dynamic Pokémon card creation with background color based on type.
-
----
 
 ## How to Run the Project Locally
 
-Follow these steps to run the backend and frontend locally:
+Please follow these steps to run the backend and frontend locally:
 
 ### Prerequisites
 
@@ -53,6 +45,7 @@ yarn install
 In the backend/.env.development file, provide the following variables:
 
 MONGODB_URI=YOUR_MONGODB_ADDRESS
+
 CORS_ORIGIN=LOCAL_FRONTEND_ADDRESS
 
 Replace YOUR_MONGODB_ADDRESS with your MongoDB connection string and LOCAL_FRONTEND_ADDRESS with your frontend URL (e.g., http://localhost:3000).
