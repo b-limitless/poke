@@ -20,14 +20,6 @@ import {
 import { RootState } from "store/store";
 
 
-interface Pokemon {
-  id: number;
-  name: string;
-  image: string;
-  types: string[];
-  isFavorite: boolean;
-}
-
 export default function Home() {
   const [hoveredPokemonId, setHoveredPokemonId] = useState<number>(1);
   const dispatch = useDispatch();

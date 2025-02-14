@@ -2,6 +2,7 @@ import React from "react";
 import "./pokemon.card.scss";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
 import { IPokemon } from "slices/favoritesSlice";
+import { getRandomTypeColor } from "config/colors";
 
 // Define the interface for Pokémon data
 interface Pokemon {
@@ -47,7 +48,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       <div className="pokemon-card-inner">
         <div
           className="pokemon-card-front"
-          style={{ backgroundColor }} // Set background color based on Pokémon type
+          style={{ backgroundColor: '#fff' }} // Set background color based on Pokémon type
         >
           <img
             className="pokemon-image"
@@ -66,7 +67,9 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
         </div>
         <div
           className="pokemon-card-back"
-          style={{ backgroundColor }} // Set background color based on Pokémon type
+          style={{ backgroundColor: 
+            getRandomTypeColor(types)
+           }} // Set background color based on Pokémon type
         >
         
 

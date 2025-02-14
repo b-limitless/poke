@@ -25,11 +25,11 @@ export default function useCurrentUser({shouldNavigate = true}: {shouldNavigate?
       setIsAuthenticated(false);
     } 
     setIsLoading(false);
-  }, [navigateToSignIn]);
+  }, [navigateToSignIn,  shouldNavigate]);
 
   useEffect(() => {
     fetchCurrentUser();
-  }, [fetchCurrentUser]);
+  }, [fetchCurrentUser, shouldNavigate]);
 
   return { isAuthenticated, isLoading };
 }

@@ -1,4 +1,4 @@
-import { Skeleton, Card, CardContent, Box } from "@mui/material";
+import { Card, CardContent, Skeleton } from "@mui/material";
 
 export default function PokemonCardSkeleton() {
   return (

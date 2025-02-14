@@ -5,6 +5,7 @@ import useCurrentUser from "hooks/useCurrentUser";
 import useScrollToEnd from "hooks/useScrollToEnd";
 import Navigation from "layouts/navigation/navigation";
 import PokemonCard from "layouts/pokemon-card";
+import PokemonCardSkeleton from "layouts/pokemon-card/Skeleton";
 import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
 import {
   fetchFevorites,
@@ -20,10 +21,7 @@ import {
   toggleFavoriteAction,
 } from "slices/favoritesSlice";
 import { RootState } from "store/store";
-import { APIs } from "utils/apis";
-import { request } from "utils/request";
 import "./home.scss";
-import PokemonCardSkeleton from "layouts/pokemon-card/Skeleton";
 
 interface Pokemon {
   id: number;
@@ -191,7 +189,7 @@ export default function Home() {
             />
           ))}
       </div>
-      {loadingMore &&
+      {(loadingMore || loading) &&
         loaderCount.map((_, i) => <PokemonCardSkeleton key={i} />)}
 
         {!loading && pokemons?.length === 0 && <div>No pokemons available</div>}
