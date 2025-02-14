@@ -39,6 +39,7 @@ cd backend
 2.	Install the necessary dependencies:
 
 yarn install
+
 3.	Configure the environment variables for MongoDB and CORS.
 In the backend/.env.development file, provide the following variables:
 
