@@ -7,10 +7,11 @@ import Navigation from "layouts/navigation/navigation";
 import PokemonCard from "layouts/pokemon-card";
 import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
 import {
-  fetchFevorites
+  fetchFevorites,
+  fetchPokemonsAPIs
 } from "pages/api-requests/fetchFevorites";
 import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -42,28 +43,51 @@ export default function Home() {
     (state: RootState) => state.favorites.favorites
   );
 
+  const scrollableDivRef = useRef<HTMLDivElement>(null);
+  const previousScrollPosition = useRef(0);
+
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
 
   const fetchPokemons = async (page: number) => {
     if (loading) return;
+    console.log('previousScrollPosition.current;', previousScrollPosition.current)
+  
+    const div = scrollableDivRef.current;
+    if (div) {
+      previousScrollPosition.current = div.scrollTop; // Save scroll position
+    }
+  
     setLoading(true);
-    try {
-      const response = await request({
-        url: APIs.pokemon.index(page),
-        method: "get",
-      });
+    // try {
+    //   const response = await request({
+    //     url: APIs.pokemon.index(page),
+    //     method: "get",
+    //   });
+  
+    //   if (response?.results) {
+    //     setPokemons((prev) => [...prev, ...response.results]);
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching data:", error);
+    // }
+
+    const response:any = await fetchPokemonsAPIs(page);
 
       if (response?.results) {
         setPokemons((prev) => [...prev, ...response.results]);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+  
     setLoading(false);
     setLoadingMore(false);
+  
+    requestAnimationFrame(() => {
+      if (div) {
+        div.scrollTop = previousScrollPosition.current;
+      }
+    });
   };
-
+  
   const {
     data: favorites,
     error: favoritesError,
@@ -125,6 +149,18 @@ export default function Home() {
     dispatch(setFavorites(favorites));
   }, [favorites]);
 
+
+
+  useEffect(() => {
+    const div = scrollableDivRef.current;
+    if (div) {
+      requestAnimationFrame(() => {
+        div.scrollTop = previousScrollPosition.current;
+      });
+    }
+  });
+  
+
   return (
     <Template>
       <Navigation />
@@ -135,7 +171,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="pokemon-list" id="pokemon-list">
+      <div className="pokemon-list" id="pokemon-list" ref={scrollableDivRef}>
         {!loading &&
           pokemons?.length > 0 &&
           pokemons?.map((pokemon: any, i) => (

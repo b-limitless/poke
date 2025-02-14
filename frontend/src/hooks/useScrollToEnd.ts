@@ -15,11 +15,10 @@ export default function useScrollToEnd(
       const clientHeight = scrollableDiv.clientHeight;
       // Number of pixels the content has been scrolled vertically
       const scrollTop = scrollableDiv.scrollTop;
-
-      if (scrollTop + clientHeight + 1 > scrollHeight) {
-        const scrollY = window.scrollY; // Save current scroll position
+      const scrollY = window.scrollY; 
+      if (scrollTop + clientHeight + 1 >= scrollHeight) {
         callback();
-        window.scrollTo(0, scrollY); // Restore scroll position
+        
       }
     };
 

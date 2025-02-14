@@ -22,3 +22,15 @@ export const fetchFevorites = async () => {
     console.error(`Could not update favriote`, err);
   }
 };
+
+export const fetchPokemonsAPIs = async (page: number) => {
+  try {
+    const response = await request({
+      url: APIs.pokemon.index(page),
+      method: "get",
+    });       
+    return response;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
