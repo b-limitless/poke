@@ -94,25 +94,11 @@ On the first request, data is fetched from the Pokémon API and stored in MongoD
 
 This caching mechanism works well since Pokémon data doesn’t change frequently, making it a perfect use case for local storage after the initial API call.
 
-Considerations for Scaling
-	•	Database: If the database grows significantly, consider implementing pagination or query optimizations to handle large datasets.
-	•	API Load Balancing: In a production environment, use load balancing for both the backend and frontend to handle a large number of requests efficiently.
-	•	Caching: You could also consider adding a caching layer (e.g., Redis) for highly frequent data requests.
-
 Assumptions Made
 	•	Pokémon data does not change frequently, so caching in MongoDB for subsequent requests is feasible.
 	•	All Pokémon data fetched from the Pokémon API is relevant to the application’s needs.
 	•	The backend and frontend are run locally on different ports during development. Ensure proper CORS handling is configured.
 
-License
 
-MIT License – see LICENSE for more information.
 
-Key Sections in the README:
-	1.	Project Overview – Gives a brief overview of the problem and solution approach.
-	2.	Technologies Used – Lists the major technologies involved in the project.
-	3.	Features – Highlights key features, including Pokémon data management and backend optimization.
-	4.	How to Run the Project Locally – Provides detailed setup instructions for both the backend and frontend, including environment configurations.
-	5.	Scaling Considerations – Discusses how the application scales efficiently by caching data in MongoDB.
-	6.	Assumptions Made – Lists assumptions made during development.
-	7.	License – Adds a section about licensing (MIT License in this case).
+
