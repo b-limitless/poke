@@ -65,7 +65,6 @@ export default function Home() {
   };
 
   const fetchPokemonsMore = async (page: number) => {
-
     const div = scrollableDivRef.current;
     if (div) {
       previousScrollPosition.current = div.scrollTop; // Save scroll position
@@ -171,7 +170,6 @@ export default function Home() {
         </div>
       )}
 
-   
       <div className="pokemon-list" id="pokemon-list" ref={scrollableDivRef}>
         {!loading &&
           pokemons?.length > 0 &&
@@ -193,7 +191,10 @@ export default function Home() {
             />
           ))}
       </div>
-      {loadingMore && loaderCount.map((_, i) => <PokemonCardSkeleton key={i}/>)}
+      {loadingMore &&
+        loaderCount.map((_, i) => <PokemonCardSkeleton key={i} />)}
+
+        {!loading && pokemons?.length === 0 && <div>No pokemons available</div>}
     </Template>
   );
 }
