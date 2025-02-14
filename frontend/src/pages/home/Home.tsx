@@ -23,6 +23,7 @@ import { RootState } from "store/store";
 import { APIs } from "utils/apis";
 import { request } from "utils/request";
 import "./home.scss";
+import PokemonCardSkeleton from "layouts/pokemon-card/Skeleton";
 
 interface Pokemon {
   id: number;
@@ -31,6 +32,8 @@ interface Pokemon {
   types: string[];
   isFavorite: boolean;
 }
+
+const loaderCount = new Array(10).fill(0);
 
 export default function Home() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
@@ -168,6 +171,7 @@ export default function Home() {
         </div>
       )}
 
+   
       <div className="pokemon-list" id="pokemon-list" ref={scrollableDivRef}>
         {!loading &&
           pokemons?.length > 0 &&
@@ -189,7 +193,7 @@ export default function Home() {
             />
           ))}
       </div>
-      {loadingMore && <div>Please wait loading.....</div>}
+      {loadingMore && loaderCount.map((_, i) => <PokemonCardSkeleton key={i}/>)}
     </Template>
   );
 }
