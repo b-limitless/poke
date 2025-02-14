@@ -40,7 +40,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
   return (
     <div
       className="pokemon-card"
-      onMouseEnter={() => onHover(pokemonId)} // Trigger on hover event
+      onMouseEnter={() => onHover(Number(pokemonId))} // Trigger on hover event
       onMouseLeave={() => onMouseLeave} // Reset on hover out
     >
       <div className="pokemon-card-inner">
@@ -57,9 +57,9 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
           <h2 className="pokemon-name">{name}</h2>
           {/* <p className="pokemon-type">{types.join(" / ")}</p> */}
           <div className="favorite-icon" onClick={() => null}>
-            {myFavriotes &&  myFavriotes.includes(pokemonId) ? (
+            {myFavriotes &&  myFavriotes.includes(Number(pokemonId)) ? (
               <Favorite sx={{ color: "red" }} /> // Filled heart when favorite
-            ) : null // Outline heart when not favorite
+            ) : '1' // Outline heart when not favorite
             }
           </div>
         </div>
@@ -98,15 +98,15 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 
           {loadingDetails && <div>Please wait loading....</div>}
 
-          {myFavriotes && myFavriotes.includes(pokemonId) ? (
+          {myFavriotes && myFavriotes.includes(Number(pokemonId)) ? (
             <Favorite
               sx={{ color: "red" }}
-              onClick={() => toggleFavorite(pokemonId)}
+              onClick={() => toggleFavorite(Number(pokemonId))}
             /> // Filled heart when favorite
           ) : (
             <FavoriteBorder
               sx={{ color: "gray" }}
-              onClick={() => toggleFavorite(pokemonId)}
+              onClick={() => toggleFavorite(Number(pokemonId))}
             /> // Outline heart when not favorite
           )}
         </div>

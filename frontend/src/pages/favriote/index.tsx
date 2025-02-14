@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Template from "common/Template/Template";
 import CustomLoadingButton from "components/Button/LoadingButton";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,10 @@ import { useEffect, useState } from "react";
 import PokemonCard from "layouts/pokemon-card";
 import { detailsInitialState } from "config/initial-states";
 import Navigation from "layouts/navigation/navigation";
+import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
+import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
+import { fetchFevoritesIds } from "pages/api-requests/fetchFevorites";
+import { fetchFevorites } from "pages/api-requests/fetchFevorites";
 
 const logOutUser = async () => {
   try {
@@ -24,8 +28,10 @@ const logOutUser = async () => {
 };
 
 export default function Favorite() {
-  const [myFavriotes, setMyFavriote] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [myFavorites, setMyFavriote] = useState<any[]>([]);
+  const [hoveredPokemonId, setHoveredPokemonId] = useState<number>(1);
+  const [myFavriotesIds, setFavriotesIds] = useState<number[]>([]);
+  
 
   // Lets make request to get the current user
   // const navigate = useNavigate();
@@ -49,42 +55,78 @@ export default function Favorite() {
 
   useCurrentUser({});
 
-  const fetchFevorites = async () => {
-    setLoading(true);
-    try {
-      const response = await request({
-        url: `http://localhost:9000/pokemon/favorite`,
-        method: "get",
-      });
-      setMyFavriote(response);
-      console.log("Fetched favorites");
-    } catch (err) {
-      console.error(`Could not update favriote`, err);
-    }
-    setLoading(false);
+  const {
+    data: pokemonDetails,
+    error: pokemonDetailsError,
+    isLoading: pokemonDetailsLoading,
+  } = useQuery({
+    queryKey: ["pokemonDetails", hoveredPokemonId],
+    queryFn: () => fetchPokemonDetails(hoveredPokemonId),
+    enabled: hoveredPokemonId !== null,
+  });
+
+  const handleHover = (id: number) => {
+    setHoveredPokemonId(id);
   };
 
-  useEffect(() => {
-    fetchFevorites();
-  }, [])
+  const { data: myFavoritesQuery, error, isLoading, isError } = useQuery({
+    queryKey: ["fetchFavorites"],
+    queryFn: fetchFevorites,
+  });
 
-  
+  const {
+    mutate: toggleFavoriteMutation,
+    isPending: isPendingFavorite,
+    isError: isFavoriteError,
+    error: favoriteError,
+  } = useMutation({
+    mutationFn: addOrRemoveFromFavorite,
+    onSuccess: (_data, id) => {
+      setFavriotesIds((prev: number[]) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      );
+       setMyFavriote([...myFavorites.filter((pokemon:any) => Number(pokemon.pokemonId) !== Number(id))])
+    },
+  });
+
+  const toggleFavorite = (id: number) => {
+    toggleFavoriteMutation(id);
+  };
+
+  const {
+    data: myFavriotesIdsLocal,
+    error: favIdsError,
+    isLoading: favIdsLoading,
+  } = useQuery({
+    queryKey: ["fetchFevoritesIds"],
+    queryFn: () => {
+      return fetchFevoritesIds();
+    },
+  });
+
+  useEffect(() => {
+    setFavriotesIds(myFavriotesIdsLocal);
+  }, []);
+
+  useEffect( () => {
+    setMyFavriote(myFavoritesQuery)
+  }, []);
 
   return (
     <Template>
-     <Navigation/>
+      <Navigation />
       <div className="pokemon-list" id="pokemon-list">
-      {!loading &&
-          myFavriotes.length > 0 &&
-          myFavriotes.map((pokemon: any, i) => (
+        {!isLoading &&
+          myFavorites?.length > 0 &&
+          myFavorites?.map((pokemon: any, i:number) => (
             <PokemonCard
               key={pokemon.pokemonId}
               pokemon={pokemon}
-              toggleFavorite={() => {}}
-              onHover={() => {}}
+              toggleFavorite={toggleFavorite}
+              onHover={handleHover}
               backgroundColor={"green"}
-              myFavriotes={[]}
-              details={detailsInitialState}
+              myFavriotes={myFavorites}
+              details={pokemonDetails ?? detailsInitialState}
             />
           ))}
       </div>

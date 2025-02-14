@@ -59,17 +59,15 @@ export default function Home() {
     error: favIdsError,
     isLoading: favIdsLoading,
   } = useQuery({
-    queryKey: ["fetchFevoritesIds", isAuthenticated],
+    queryKey: ["fetchFevoritesIds"],
     queryFn: () => {
       if (!isAuthenticated) return [];
       return fetchFevoritesIds();
     },
+    enabled: isAuthenticated
   });
 
-  useEffect(() => {
-    setMyFavriote(myFavriotesIds);
-  }, [myFavriotesIds]);
-
+ 
   const {
     mutate: toggleFavoriteMutation,
     isPending: isPendingFavorite,
@@ -92,6 +90,7 @@ export default function Home() {
   const toggleFavorite = (id: number) => {
     toggleFavoriteMutation(id);
   };
+
 
   const {
     data: pokemonDetails,
@@ -116,9 +115,16 @@ export default function Home() {
     fetchPokemons(page);
   }, [page]);
 
+  useEffect(() => {
+    setMyFavriote(myFavriotesIds);
+  }, [myFavriotesIds]);
+  
+
+
   return (
     <Template>
       <Navigation />
+      {pokemonDetailsError && <div> Error while fetching pokemon details {pokemonDetailsError.toString()}</div>}
 
       <div className="pokemon-list" id="pokemon-list">
         {!loading &&
