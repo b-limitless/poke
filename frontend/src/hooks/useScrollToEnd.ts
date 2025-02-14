@@ -17,7 +17,9 @@ export default function useScrollToEnd(
       const scrollTop = scrollableDiv.scrollTop;
 
       if (scrollTop + clientHeight + 1 > scrollHeight) {
+        const scrollY = window.scrollY; // Save current scroll position
         callback();
+        window.scrollTo(0, scrollY); // Restore scroll position
       }
     };
 

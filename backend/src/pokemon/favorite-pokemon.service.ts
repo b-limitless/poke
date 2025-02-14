@@ -19,13 +19,20 @@ export class FavoritePokemonService {
     return favorites.map((fav) => Number(fav.pokemonId));
   }
   
-  async toggleFavorite(userId: string, pokemonId: string): Promise<FavoritePokemon | { message: string }> {
+  async toggleFavorite(userId: string, pokemonId: string): Promise<FavoritePokemon | { deleted: boolean }> {
     const existingFavorite = await this.favoritePokemonModel.findOne({ userId, pokemonId }).exec();
-
+  
     if (existingFavorite) {
+      // Find the existing favorite before deletion to return the correct object
+      const pokemonToDelete = await this.favoritePokemonModel.findOne({ userId, pokemonId }).exec();
+  
+      // Perform the deletion
       await this.favoritePokemonModel.deleteOne({ userId, pokemonId }).exec();
-      return { message: 'Favorite removed successfully' };
+  
+      // Return the deleted Pokémon document
+      return pokemonToDelete;
     } else {
+      // If it doesn't exist, create a new favorite
       const createdFavorite = new this.favoritePokemonModel({ userId, pokemonId });
       await createdFavorite.save();
       return createdFavorite;
