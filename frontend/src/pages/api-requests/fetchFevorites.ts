@@ -3,11 +3,21 @@ import { request } from "utils/request";
 
 export const fetchFevoritesIds = async () => {
   try {
-    const response = await request({
+    return await request({
       url: APIs.pokemon.getFavoriteIds,
       method: "get",
     });
-    return response;
+  } catch (err) {
+    console.error(`Could not update favriote`, err);
+  }
+};
+
+export const fetchFevorites = async () => {
+  try {
+    return await request({
+      url: APIs.pokemon.favorite,
+      method: "get",
+    });
   } catch (err) {
     console.error(`Could not update favriote`, err);
   }

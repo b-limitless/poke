@@ -5,6 +5,8 @@ import useCurrentUser from "hooks/useCurrentUser";
 export default function Navigation() {
 
   const {isAuthenticated} = useCurrentUser({shouldNavigate: false});
+
+  
   return (
     <div className="navigation">
       <Link to="/">Home</Link>

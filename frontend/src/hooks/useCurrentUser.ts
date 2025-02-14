@@ -23,9 +23,7 @@ export default function useCurrentUser({shouldNavigate = true}: {shouldNavigate?
     } catch (err) {
       console.log(`An unknown error occurred: ${err}`);
       setIsAuthenticated(false);
-    } finally {
-      
-    }
+    } 
     setIsLoading(false);
   }, [navigateToSignIn]);
 

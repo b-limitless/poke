@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { APIs } from "utils/apis";
 import { request } from "utils/request";
 import "./home.scss";
+import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
 
 interface Pokemon {
   id: number;
@@ -27,13 +28,11 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [myFavriotes, setMyFavriote] = useState<number[]>([]);
-  const [pokemonDetails, setPokemonsDetails] = useState(detailsInitialState);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [hoveredPokemonId, setHoveredPokemonId] = useState<number>(1);
 
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
 
-  
   const fetchPokemons = async (page: number) => {
     if (loading) return;
     setLoading(true);
@@ -44,12 +43,9 @@ export default function Home() {
       });
 
       if (response?.results) {
-        setPokemons((prev) => {
-          return [...prev, ...response.results];
-        });
+        setPokemons((prev) => [...prev, ...response.results]);
       }
 
-      setPokemons([...response.results]); 
       
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -65,15 +61,14 @@ export default function Home() {
   } = useQuery({
     queryKey: ["fetchFevoritesIds", isAuthenticated],
     queryFn: () => {
-      if(!isAuthenticated) return []; 
-      return fetchFevoritesIds(); 
+      if (!isAuthenticated) return [];
+      return fetchFevoritesIds();
     },
   });
 
   useEffect(() => {
-    setMyFavriote(myFavriotesIds)
-  }, [myFavriotesIds])
-
+    setMyFavriote(myFavriotesIds);
+  }, [myFavriotesIds]);
 
   const {
     mutate: toggleFavoriteMutation,
@@ -98,29 +93,24 @@ export default function Home() {
     toggleFavoriteMutation(id);
   };
 
-  const fetchPokemonDetails = async (id: number) => {
-    setLoadingDetails(true);
-    try {
-      const response = await request({
-        url: APIs.pokemon.details(id),
-        method: "get",
-      });
-      setPokemonsDetails(response);
-    } catch (err) {
-      console.error(`Could not fetch pokemon details`);
-    }
-    setLoadingDetails(false);
-  };
+  const {
+    data: pokemonDetails,
+    error: pokemonDetailsError,
+    isLoading: pokemonDetailsLoading,
+  } = useQuery({
+    queryKey: ["pokemonDetails", hoveredPokemonId],
+    queryFn: () => fetchPokemonDetails(hoveredPokemonId),
+    enabled: hoveredPokemonId !== null,
+  });
 
   const handleHover = (id: number) => {
-    fetchPokemonDetails(id);
+    setHoveredPokemonId(id);
   };
 
   useScrollToEnd("pokemon-list", () => {
     setPage((page) => page + 1);
     setLoadingMore(true);
   });
-
 
   useEffect(() => {
     fetchPokemons(page);
@@ -141,14 +131,13 @@ export default function Home() {
               onHover={handleHover}
               backgroundColor={"green"}
               myFavriotes={myFavriotes}
-              details={pokemonDetails}
-              loadingDetails={loadingDetails}
-              onMouseLeave={() => setPokemonsDetails(detailsInitialState)}
+              details={pokemonDetails ?? detailsInitialState}
+              loadingDetails={pokemonDetailsLoading}
+              onMouseLeave={() => {}}
             />
           ))}
       </div>
       {loadingMore && <div>Please wait loading.....</div>}
-
     </Template>
   );
 }

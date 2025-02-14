@@ -68,7 +68,7 @@ export default function Favorite() {
     fetchFevorites();
   }, [])
 
-  console.log('fav', myFavriotes)
+  
 
   return (
     <Template>
@@ -88,24 +88,6 @@ export default function Favorite() {
             />
           ))}
       </div>
-        
-     
-      {/* {isError && (
-          <ErrorText 
-          style={{padding: '1rem 0 1rem 0', textAlign:'center'}}
-          text={error?.message || "Something went wrong"} />
-        )}
-
-       <CustomLoadingButton
-          onClick={logouthandler}
-          loading={isPending}
-          loadingPosition="start"
-          variant="contained"
-          type="secondary"
-        >
-          Logout
-        </CustomLoadingButton> */}
-      Hello World
     </Template>
   );
 }

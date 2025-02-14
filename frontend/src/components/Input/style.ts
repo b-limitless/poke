@@ -1,7 +1,6 @@
 import { colors } from "config/colors";
 
 export const style: any = {
-  // Apply font family to the root form control and input label
   "&.MuiFormControl-root": {
     width: "100%",
     fontFamily: "Poppins, sans-serif !important",
@@ -10,7 +9,6 @@ export const style: any = {
     fontFamily: "Poppins, sans-serif !important",
   },
 
-  // Style for the input field when focused
   "& .MuiInputBase-input": {
     borderRadius: "6px",
     fontWeight: "400",
@@ -22,7 +20,6 @@ export const style: any = {
     fontFamily: "Poppins, sans-serif !important",
   },
 
-  // When label is focused, apply color and adjust background on focus
   "& .MuiInputLabel-root.Mui-focused": {
     color: colors.primary,
     backgroundColor: "#fff",  // Add a background to make the label shift up clearly
