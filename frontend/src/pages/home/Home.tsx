@@ -8,7 +8,7 @@ import PokemonCard from "layouts/pokemon-card";
 import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
 import {
   fetchFevorites,
-  fetchPokemonsAPIs
+  fetchPokemonsAPIs,
 } from "pages/api-requests/fetchFevorites";
 import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import {
   IPokemon,
   setFavorites,
-  toggleFavoriteAction
+  toggleFavoriteAction,
 } from "slices/favoritesSlice";
 import { RootState } from "store/store";
 import { APIs } from "utils/apis";
@@ -49,45 +49,41 @@ export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
 
-  const fetchPokemons = async (page: number) => {
-    if (loading) return;
-    console.log('previousScrollPosition.current;', previousScrollPosition.current)
-  
+  const fetchPokemons = async () => {
+    setLoading(true);
+
+    const response: any = await fetchPokemonsAPIs(0);
+
+    if (response?.results) {
+      setPokemons((prev) => [...prev, ...response.results]);
+    }
+
+    setLoading(false);
+  };
+
+  const fetchPokemonsMore = async (page: number) => {
+
     const div = scrollableDivRef.current;
     if (div) {
       previousScrollPosition.current = div.scrollTop; // Save scroll position
     }
-  
-    setLoading(true);
-    // try {
-    //   const response = await request({
-    //     url: APIs.pokemon.index(page),
-    //     method: "get",
-    //   });
-  
-    //   if (response?.results) {
-    //     setPokemons((prev) => [...prev, ...response.results]);
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching data:", error);
-    // }
 
-    const response:any = await fetchPokemonsAPIs(page);
+    setLoadingMore(true);
 
-      if (response?.results) {
-        setPokemons((prev) => [...prev, ...response.results]);
-      }
-  
-    setLoading(false);
+    const response: any = await fetchPokemonsAPIs(page);
+
+    if (response?.results) {
+      setPokemons((prev) => [...prev, ...response.results]);
+    }
+
     setLoadingMore(false);
-  
     requestAnimationFrame(() => {
       if (div) {
         div.scrollTop = previousScrollPosition.current;
       }
     });
   };
-  
+
   const {
     data: favorites,
     error: favoritesError,
@@ -142,14 +138,16 @@ export default function Home() {
   });
 
   useEffect(() => {
-    fetchPokemons(page);
+    fetchPokemons();
+  }, []);
+
+  useEffect(() => {
+    fetchPokemonsMore(page);
   }, [page]);
 
   useEffect(() => {
     dispatch(setFavorites(favorites));
   }, [favorites]);
-
-
 
   useEffect(() => {
     const div = scrollableDivRef.current;
@@ -159,7 +157,6 @@ export default function Home() {
       });
     }
   });
-  
 
   return (
     <Template>
