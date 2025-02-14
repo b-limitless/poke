@@ -8,6 +8,8 @@ import ErrorText from "components/Help/ErrorText";
 import useCurrentUser from "hooks/useCurrentUser";
 import { useEffect, useState } from "react";
 import PokemonCard from "layouts/pokemon-card";
+import { detailsInitialState } from "config/initial-states";
+import Navigation from "layouts/navigation/navigation";
 
 const logOutUser = async () => {
   try {
@@ -70,8 +72,9 @@ export default function Favorite() {
 
   return (
     <Template>
-      
-        {!loading &&
+     <Navigation/>
+      <div className="pokemon-list" id="pokemon-list">
+      {!loading &&
           myFavriotes.length > 0 &&
           myFavriotes.map((pokemon: any, i) => (
             <PokemonCard
@@ -81,8 +84,11 @@ export default function Favorite() {
               onHover={() => {}}
               backgroundColor={"green"}
               myFavriotes={[]}
+              details={detailsInitialState}
             />
           ))}
+      </div>
+        
      
       {/* {isError && (
           <ErrorText 

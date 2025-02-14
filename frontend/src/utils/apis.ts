@@ -1,4 +1,8 @@
+
+
 const BASE_URI = process.env.REACT_APP_API_URL;
+
+
 
 export const APIs  = {
     auth: {
@@ -8,6 +12,10 @@ export const APIs  = {
         signin: `${BASE_URI}/users/signin`, 
     }, 
     pokemon: {
-        index: (page:number=0) => `${BASE_URI}/pokemons?page=${page}`
+        index: (page:number=0) => `${BASE_URI}/pokemon?page=${page}`,
+        details: (id:number) => `${BASE_URI}/pokemon/${id}`,
+        favorite: `${BASE_URI}/pokemon/favorite`,
+        getFavoriteIds: `${BASE_URI}/pokemon/favorite_ids` 
+        
     }
 }

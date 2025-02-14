@@ -1,4 +1,4 @@
-@import './colors';
+@import "./colors";
 *,
 *::after,
 *::before {
@@ -10,5 +10,15 @@
 }
 
 body {
-    background-color: $gray;
+  background-color: $gray;
+  font-family: Poppins, sans-serif;
+}
+
+.pokemon-list {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
 }

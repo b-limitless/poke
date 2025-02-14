@@ -70,3 +70,16 @@
     font-weight: bold;
   }
 }
+
+ .tag {
+  display: inline-block;
+  background: #ddd;
+  color: #333;
+  padding: 4px 8px;
+  margin: 2px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.ability { background: #ffa726; } /* Orange */
+.type { background: #42a5f5; }   /* Blue */
+.evolution { background: #66bb6a; } /* Green */

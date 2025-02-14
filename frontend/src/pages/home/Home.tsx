@@ -1,14 +1,18 @@
-import Button from "components/Button";
-import axios from "axios";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Template from "common/Template/Template";
+import { detailsInitialState } from "config/initial-states";
+import useCurrentUser from "hooks/useCurrentUser";
+import useScrollToEnd from "hooks/useScrollToEnd";
+import Navigation from "layouts/navigation/navigation";
 import PokemonCard from "layouts/pokemon-card";
-import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
+import { fetchFevoritesIds } from "pages/api-requests/fetchFevorites";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { APIs } from "utils/apis";
 import { request } from "utils/request";
 import "./home.scss";
-import useCurrentUser from "hooks/useCurrentUser";
 
-// Define the interface for Pokémon data
 interface Pokemon {
   id: number;
   name: string;
@@ -16,104 +20,26 @@ interface Pokemon {
   types: string[];
   isFavorite: boolean;
 }
-//  const getBackgroundColor = (types: string[]) => {
-//     const typeColors: { [key: string]: string } = {
-//       fire: "#f44e42",
-//       water: "#4a90e2",
-//       grass: "#7cb342",
-//       poison: "#7e57c2",
-//       // Add more type-color mappings as needed
-//     };
-//     return '#ffffff';
-//     // return types.map((type) => typeColors[type] || "#ffffff").join(", ");
-//   };
-
-// const examplePokemons: Pokemon[] = [
-//   {
-//     id: 1,
-//     name: "Charmander",
-//     image:
-//       "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-//     types: ["fire"],
-//     isFavorite: false,
-//   },
-//   {
-//     id: 2,
-//     name: "Squirtle",
-//     image: "/squirtle.png",
-//     types: ["water"],
-//     isFavorite: true,
-//   },
-//   {
-//     id: 3,
-//     name: "Bulbasaur",
-//     image: "/bulbasaur.png",
-//     types: ["grass"],
-//     isFavorite: false,
-//   },
-// ];
-
-const count = new Array(50).fill(0);
 
 export default function Home() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [hoveredId, setHoveredId] = useState<number>(-1);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [myFavriotes, setMyFavriote] = useState<number[]>([]);
+  const [pokemonDetails, setPokemonsDetails] = useState(detailsInitialState);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
 
-  console.log('isAuthenticated', isAuthenticated)
-
-  const toggleFavorite = useCallback(async (id: number) => {
-    if (!isAuthenticated) {
-      navigate("/signin");
-    }
-
-    try {
-      // await request
-      await request({
-        url: `http://localhost:9000/pokemon/favorite/${id}`,
-        method: "post",
-      });
-      setMyFavriote(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-      console.log('Added/Removed from/to favriote.')
-    } catch (err) {
-      console.error(`Could not update favriote`, err);
-    }
-  }, [isAuthenticated]);
-
-  const fetchFevorites = useCallback(async () => {
-    if (!isAuthenticated) {
-      return;
-    }
-
-    try {
-    
-      const response =  await request({
-        url: `http://localhost:9000/pokemon/favorite_ids`,
-        method: "get",
-      });
-      
-      console.log('response', response)
-      setMyFavriote(response)
-      console.log('Fetched favorites')
-    } catch (err) {
-      console.error(`Could not update favriote`, err);
-    }
-  }, [isAuthenticated]);
-
+  
   const fetchPokemons = async (page: number) => {
     if (loading) return;
-
     setLoading(true);
     try {
       const response = await request({
-        url: `http://localhost:9000/pokemon?page=${page}`,
+        url: APIs.pokemon.index(page),
         method: "get",
       });
 
@@ -123,8 +49,8 @@ export default function Home() {
         });
       }
 
-      setPokemons([...response.results]); // Append new data
-      setHasMore(!!response.data.next); // Check if more pages exist
+      setPokemons([...response.results]); 
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -132,57 +58,77 @@ export default function Home() {
     setLoadingMore(false);
   };
 
-  const handleHover = (id: number) => {
-    setHoveredId(id);
+  const {
+    data: myFavriotesIds,
+    error: favIdsError,
+    isLoading: favIdsLoading,
+  } = useQuery({
+    queryKey: ["fetchFevoritesIds", isAuthenticated],
+    queryFn: () => {
+      if(!isAuthenticated) return []; 
+      return fetchFevoritesIds(); 
+    },
+  });
+
+  useEffect(() => {
+    setMyFavriote(myFavriotesIds)
+  }, [myFavriotesIds])
+
+
+  const {
+    mutate: toggleFavoriteMutation,
+    isPending: isPendingFavorite,
+    isError: isFavoriteError,
+    error: favoriteError,
+  } = useMutation({
+    mutationFn: addOrRemoveFromFavorite,
+    onMutate: () => {
+      if (!isAuthenticated) {
+        navigate("/signin");
+      }
+    },
+    onSuccess: (_data, id) => {
+      setMyFavriote((prev: number[]) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      );
+    },
+  });
+
+  const toggleFavorite = (id: number) => {
+    toggleFavoriteMutation(id);
   };
 
- 
+  const fetchPokemonDetails = async (id: number) => {
+    setLoadingDetails(true);
+    try {
+      const response = await request({
+        url: APIs.pokemon.details(id),
+        method: "get",
+      });
+      setPokemonsDetails(response);
+    } catch (err) {
+      console.error(`Could not fetch pokemon details`);
+    }
+    setLoadingDetails(false);
+  };
 
-  useEffect(() => {
-    const scrollableDiv = document.getElementById("pokemon-list");
+  const handleHover = (id: number) => {
+    fetchPokemonDetails(id);
+  };
 
-    const handleScroll = () => {
-      if (!scrollableDiv) return;
-      // Total height of the content
-      const scrollHeight = scrollableDiv.scrollHeight;
-      // Height of the visible part of the div
-      const clientHeight = scrollableDiv.clientHeight;
-      // Number of pixels the content has been scrolled vertically
-      const scrollTop = scrollableDiv.scrollTop;
+  useScrollToEnd("pokemon-list", () => {
+    setPage((page) => page + 1);
+    setLoadingMore(true);
+  });
 
-      if (scrollTop + clientHeight + 1 > scrollHeight) {
-        setPage((page) => page + 1);
-        setLoadingMore(true);
-        console.log("reach to the end");
-      }
-    };
-
-    scrollableDiv && scrollableDiv.addEventListener("scroll", handleScroll);
-
-    return () => {
-      scrollableDiv &&
-        scrollableDiv.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    fetchFevorites();
-  }, [isAuthenticated])
 
   useEffect(() => {
     fetchPokemons(page);
   }, [page]);
 
-  console.log("myFavriotes", myFavriotes);
-  // console.log('pokemons', pokemons)
   return (
     <Template>
-      <div className="navigation">
-        <Link to="/signin">Signin</Link>
-        <Link to="/signup">Signup</Link>
-        <Link to="/favorite">Favorite</Link>
-        <Link to="/logout">Logout</Link>
-      </div>
+      <Navigation />
 
       <div className="pokemon-list" id="pokemon-list">
         {!loading &&
@@ -195,11 +141,14 @@ export default function Home() {
               onHover={handleHover}
               backgroundColor={"green"}
               myFavriotes={myFavriotes}
+              details={pokemonDetails}
+              loadingDetails={loadingDetails}
+              onMouseLeave={() => setPokemonsDetails(detailsInitialState)}
             />
           ))}
       </div>
       {loadingMore && <div>Please wait loading.....</div>}
-      {/* <Button variant={"secondary"} text={"Load More"}/> */}
+
     </Template>
   );
 }
