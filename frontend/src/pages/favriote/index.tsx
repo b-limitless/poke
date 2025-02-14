@@ -1,59 +1,76 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Template from "common/Template/Template";
-import CustomLoadingButton from "components/Button/LoadingButton";
-import { useNavigate } from "react-router-dom";
-import { APIs } from "utils/apis";
-import { request } from "utils/request";
-import ErrorText from "components/Help/ErrorText";
-import useCurrentUser from "hooks/useCurrentUser";
-import { useEffect, useState } from "react";
-import PokemonCard from "layouts/pokemon-card";
 import { detailsInitialState } from "config/initial-states";
+import useCurrentUser from "hooks/useCurrentUser";
 import Navigation from "layouts/navigation/navigation";
-import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
+import PokemonCard from "layouts/pokemon-card";
 import { addOrRemoveFromFavorite } from "pages/api-requests/addOrRemoveFromFavorite";
-import { fetchFevoritesIds } from "pages/api-requests/fetchFevorites";
-import { fetchFevorites } from "pages/api-requests/fetchFevorites";
+import {
+  fetchFevorites
+} from "pages/api-requests/fetchFevorites";
+import { fetchPokemonDetails } from "pages/api-requests/fetchPokemonDetails";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  IPokemon,
+  setFavorites,
+  toggleFavoriteAction
+} from "slices/favoritesSlice";
+import { RootState } from "store/store";
 
-const logOutUser = async () => {
-  try {
-    // Submit the form to service
-    await request({
-      url: APIs.auth.signout,
-      method: "post",
-    });
-  } catch (err) {
-    throw new Error("An unknown error occurred");
-  }
-};
 
-export default function Favorite() {
-  const [myFavorites, setMyFavriote] = useState<any[]>([]);
+interface Pokemon {
+  id: number;
+  name: string;
+  image: string;
+  types: string[];
+  isFavorite: boolean;
+}
+
+export default function Home() {
   const [hoveredPokemonId, setHoveredPokemonId] = useState<number>(1);
-  const [myFavriotesIds, setFavriotesIds] = useState<number[]>([]);
-  
+  const dispatch = useDispatch();
+  const myFavorites = useSelector(
+    (state: RootState) => state.favorites.favorites
+  );
 
-  // Lets make request to get the current user
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useCurrentUser({ shouldNavigate: false });
 
-  // const {
-  //   mutate: logOutUserMutation,
-  //   isPending,
-  //   isError,
-  //   error,
-  // } = useMutation({
-  //   mutationFn: logOutUser,
-  //   onSuccess: () => {
-  //     navigate("/signin");
-  //   },
-  // });
+  const {
+    data: favorites,
+    error: favoritesError,
+    isLoading: favoritesLoading,
+  } = useQuery({
+    queryKey: ["favorites"],
+    queryFn: () => {
+      if (!isAuthenticated) return [];
+      return fetchFevorites();
+    },
+    enabled: isAuthenticated,
+  });
 
-  // const logouthandler = () => {
-  //   // Run mutation
-  //   logOutUserMutation();
-  // };
+  const {
+    mutate: toggleFavoriteMutation,
+    isPending: isPendingFavorite,
+    isError: isFavoriteError,
+    error: favoriteError,
+  } = useMutation({
+    mutationFn: addOrRemoveFromFavorite,
+    onMutate: () => {
+      if (!isAuthenticated) {
+        navigate("/signin");
+      }
+    },
+    onSuccess: (data: any) => {
+      dispatch(toggleFavoriteAction(data));
+    },
+  });
 
-  useCurrentUser({});
+  const toggleFavorite = (pokemon: IPokemon) => {
+    toggleFavoriteMutation(pokemon.pokemonId);
+  };
 
   const {
     data: pokemonDetails,
@@ -69,54 +86,22 @@ export default function Favorite() {
     setHoveredPokemonId(id);
   };
 
-  const { data: myFavoritesQuery, error, isLoading, isError } = useQuery({
-    queryKey: ["fetchFavorites"],
-    queryFn: fetchFevorites,
-  });
-
-  const {
-    mutate: toggleFavoriteMutation,
-    isPending: isPendingFavorite,
-    isError: isFavoriteError,
-    error: favoriteError,
-  } = useMutation({
-    mutationFn: addOrRemoveFromFavorite,
-    onSuccess: (_data, id) => {
-      setFavriotesIds((prev: number[]) =>
-        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-      );
-       setMyFavriote([...myFavorites.filter((pokemon:any) => Number(pokemon.pokemonId) !== Number(id))])
-    },
-  });
-
-  const toggleFavorite = (id: number) => {
-    toggleFavoriteMutation(id);
-  };
-
-  const {
-    data: myFavriotesIdsLocal,
-    error: favIdsError,
-    isLoading: favIdsLoading,
-  } = useQuery({
-    queryKey: ["fetchFevoritesIds"],
-    queryFn: () => {
-      return fetchFevoritesIds();
-    },
-  });
-
   useEffect(() => {
-    setFavriotesIds(myFavriotesIdsLocal);
-  }, []);
-
-  useEffect( () => {
-    setMyFavriote(myFavoritesQuery)
-  }, []);
+    dispatch(setFavorites(favorites));
+  }, [favorites]);
 
   return (
     <Template>
       <Navigation />
+      {pokemonDetailsError && (
+        <div>
+          {" "}
+          Error while fetching pokemon details {pokemonDetailsError.toString()}
+        </div>
+      )}
+
       <div className="pokemon-list" id="pokemon-list">
-        {!isLoading &&
+        {!favoritesLoading &&
           myFavorites?.length > 0 &&
           myFavorites?.map((pokemon: any, i:number) => (
             <PokemonCard
@@ -125,11 +110,18 @@ export default function Favorite() {
               toggleFavorite={toggleFavorite}
               onHover={handleHover}
               backgroundColor={"green"}
-              myFavriotes={myFavorites}
+              myFavriotes={
+                myFavorites?.map((pokemon: IPokemon) =>
+                  Number(pokemon.pokemonId)
+                ) ?? []
+              }
               details={pokemonDetails ?? detailsInitialState}
+              loadingDetails={pokemonDetailsLoading}
+              onMouseLeave={() => {}}
             />
           ))}
       </div>
+    
     </Template>
   );
 }

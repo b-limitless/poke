@@ -1,4 +1,4 @@
-@import 'styles';
+@import "styles";
 
 .form_container {
   min-width: 100vw;
@@ -11,8 +11,7 @@
     border-radius: 8px;
     max-width: 500px;
     background-color: #fff;
-    
-    @include boxShadow();
 
+    @include boxShadow();
   }
 }

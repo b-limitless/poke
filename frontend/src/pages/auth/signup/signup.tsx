@@ -27,7 +27,6 @@ const createUser = async (formData: any) => {
   }
 };
 
-
 export default function Create() {
   const navigate = useNavigate();
 
@@ -61,7 +60,7 @@ export default function Create() {
 
   const validateForm = () => {
     const newErrors: any = validateFormGlobal(userSchema, formData);
-   
+
     return newErrors as any;
   };
 
@@ -79,12 +78,12 @@ export default function Create() {
   return (
     <>
       <div className="form_container">
-
         <div>
           {isError && (
             <ErrorText
-              style={{ padding: '1rem 0 1rem 0', textAlign: 'center' }}
-              text={error?.message || "Something went wrong"} />
+              style={{ padding: "1rem 0 1rem 0", textAlign: "center" }}
+              text={error?.message || "Something went wrong"}
+            />
           )}
 
           <div className="form">
@@ -99,12 +98,12 @@ export default function Create() {
             />
 
             <div className="navigate_helper">
-              <span className="already">Already have an account ? <Link to='/signin'>Signin</Link></span>
+              <span className="already">
+                Already have an account ? <Link to="/signin">Signin</Link>
+              </span>
             </div>
           </div>
-
         </div>
-
       </div>
     </>
   );

@@ -3,7 +3,7 @@ import { request } from "utils/request";
 
 export const fetchPokemonDetails = async (id: number) => {
   try {
-    return  await request({
+    return await request({
       url: APIs.pokemon.details(id),
       method: "get",
     });

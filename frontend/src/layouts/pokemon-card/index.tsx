@@ -1,6 +1,7 @@
 import React from "react";
 import "./pokemon.card.scss";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import { IPokemon } from "slices/favoritesSlice";
 
 // Define the interface for Pokémon data
 interface Pokemon {
@@ -15,7 +16,7 @@ interface Pokemon {
 // Define props interface
 interface PokemonCardProps {
   pokemon: Pokemon;
-  toggleFavorite: (id: number) => void;
+  toggleFavorite: (pokemon: IPokemon) => void;
   onHover: (id: number) => void;
   onMouseLeave?: () => void; 
   backgroundColor: string;
@@ -57,9 +58,9 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
           <h2 className="pokemon-name">{name}</h2>
           {/* <p className="pokemon-type">{types.join(" / ")}</p> */}
           <div className="favorite-icon" onClick={() => null}>
-            {myFavriotes &&  myFavriotes.includes(Number(pokemonId)) ? (
+            {myFavriotes &&  myFavriotes?.includes(Number(pokemonId)) ? (
               <Favorite sx={{ color: "red" }} /> // Filled heart when favorite
-            ) : '1' // Outline heart when not favorite
+            ) : null // Outline heart when not favorite
             }
           </div>
         </div>
@@ -72,7 +73,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
           {!loadingDetails && <div className="pokemon-tags">
             Ability
             <div className="tags">
-              {abilities && abilities.length > 0 && abilities.map((ability: string) => (
+              {abilities && abilities?.length > 0 && abilities.map((ability: string) => (
                 <span key={ability} className="tag ability">
                   {ability}
                 </span>
@@ -98,15 +99,15 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 
           {loadingDetails && <div>Please wait loading....</div>}
 
-          {myFavriotes && myFavriotes.includes(Number(pokemonId)) ? (
+          {myFavriotes && myFavriotes?.includes(Number(pokemonId)) ? (
             <Favorite
               sx={{ color: "red" }}
-              onClick={() => toggleFavorite(Number(pokemonId))}
+              onClick={() => toggleFavorite(pokemon as any)}
             /> // Filled heart when favorite
           ) : (
             <FavoriteBorder
               sx={{ color: "gray" }}
-              onClick={() => toggleFavorite(Number(pokemonId))}
+              onClick={() => toggleFavorite(pokemon as any)}
             /> // Outline heart when not favorite
           )}
         </div>

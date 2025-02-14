@@ -27,22 +27,15 @@ const favoritesSlice = createSlice({
       state.favorites.push(action.payload);
     },
 
-    // Remove favorite Pokémon by id
-    removeFavorite: (state, action: PayloadAction<number>) => {
-      state.favorites = state.favorites.filter(
-        (pokemon) => pokemon.pokemonId !== action.payload
-      );
-    },
-
     // Set favorites list (useful for initial loading from the backend)
     setFavorites: (state, action: PayloadAction<IPokemon[]>) => {
       state.favorites = action.payload;
     },
 
-    toggleFavorite: (state, action: PayloadAction<IPokemon>) => {
+    toggleFavoriteAction: (state, action: PayloadAction<IPokemon>) => {
       const pokemon = action.payload;
       const existingFavoriteIndex = state.favorites.findIndex(
-        (fav) => fav.pokemonId === pokemon.pokemonId
+        (fav) => Number(fav.pokemonId) === Number(pokemon.pokemonId)
       );
 
       if (existingFavoriteIndex === -1) {
@@ -59,7 +52,7 @@ const favoritesSlice = createSlice({
 });
 
 // Export actions
-export const { addFavorite, removeFavorite, setFavorites } = favoritesSlice.actions;
+export const { addFavorite, setFavorites, toggleFavoriteAction } = favoritesSlice.actions;
 
 // Export the reducer to be used in the store
 export default favoritesSlice.reducer;

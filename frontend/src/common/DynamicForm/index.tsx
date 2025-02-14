@@ -1,4 +1,4 @@
-import { Box, Grid2 } from "@mui/material";
+import { Grid2 } from "@mui/material";
 import CustomLoadingButton from "components/Button/LoadingButton";
 import { Input, InputAdornments } from "components/Input";
 
