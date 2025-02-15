@@ -15,7 +15,6 @@ export default function useScrollToEnd(
       const clientHeight = scrollableDiv.clientHeight;
       // Number of pixels the content has been scrolled vertically
       const scrollTop = scrollableDiv.scrollTop;
-      const scrollY = window.scrollY; 
       if (scrollTop + clientHeight + 1 >= scrollHeight) {
         callback();
         
@@ -28,5 +27,5 @@ export default function useScrollToEnd(
       scrollableDiv &&
         scrollableDiv.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [callback, domElementId]);
 }

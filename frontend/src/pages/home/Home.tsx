@@ -87,7 +87,7 @@ export default function Home() {
   const {
     data: favorites,
     error: favoritesError,
-    isLoading: favoritesLoading,
+
   } = useQuery({
     queryKey: ["favorites"],
     queryFn: () => {
@@ -100,7 +100,7 @@ export default function Home() {
   const {
     mutate: toggleFavoriteMutation,
     isPending: isPendingFavorite,
-    isError: isFavoriteError,
+    
     error: favoriteError,
   } = useMutation({
     mutationFn: addOrRemoveFromFavorite,
@@ -147,7 +147,7 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(setFavorites(favorites));
-  }, [favorites]);
+  }, [favorites, dispatch]);
 
   useEffect(() => {
     const div = scrollableDivRef.current;
@@ -168,6 +168,10 @@ export default function Home() {
         </div>
       )}
 
+      {favoriteError && <div>{favoriteError.toString()}</div>}
+      {favoritesError && <div>{favoritesError.toString()}</div>}
+      
+
       <div className="pokemon-list" id="pokemon-list" ref={scrollableDivRef}>
         {!loading &&
           pokemons?.length > 0 &&
@@ -175,7 +179,7 @@ export default function Home() {
             <PokemonCard
               key={pokemon.pokemonId}
               pokemon={pokemon}
-              toggleFavorite={toggleFavorite}
+              toggleFavorite={isPendingFavorite ? () => {} : toggleFavorite}
               onHover={handleHover}
               backgroundColor={"green"}
               myFavriotes={

@@ -36,7 +36,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
   loadingDetails, 
   onMouseLeave
 }) => {
-  const { id, name, image, isFavorite, pokemonId } = pokemon;
+  const {  name, pokemonId } = pokemon;
   const { abilities, types, evolutions } = details;
 
   return (

@@ -46,7 +46,7 @@ export default function Home() {
   const {
     mutate: toggleFavoriteMutation,
     isPending: isPendingFavorite,
-    isError: isFavoriteError,
+    
     error: favoriteError,
   } = useMutation({
     mutationFn: addOrRemoveFromFavorite,
@@ -92,6 +92,10 @@ export default function Home() {
         </div>
       )}
 
+      {favoritesError && <div>{favoritesError.toString()}</div>}
+
+      {favoriteError && <div> {favoriteError.toString()}</div>}
+
       <div className="pokemon-list" id="pokemon-list">
         {!favoritesLoading &&
           myFavorites?.length > 0 &&
@@ -99,7 +103,7 @@ export default function Home() {
             <PokemonCard
               key={pokemon.pokemonId}
               pokemon={pokemon}
-              toggleFavorite={toggleFavorite}
+              toggleFavorite={isPendingFavorite ? () => {} : toggleFavorite}
               onHover={handleHover}
               backgroundColor={"green"}
               myFavriotes={
