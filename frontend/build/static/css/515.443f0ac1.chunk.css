@@ -1,2 +1,0 @@
-*,:after,:before{margin:0;padding:0}*{box-sizing:border-box}body{background-color:#e5e5e5;font-family:Poppins,sans-serif}.pokemon-list{display:flex;flex-wrap:wrap;gap:1rem;height:calc(100vh - 120px);margin-top:2rem;overflow-y:auto}.form_container{display:grid;min-height:100vh;min-width:100vw;place-items:center}.form_container .form{background-color:#fff;border-radius:8px;box-shadow:0 4px 12px #0000001a,0 2px 4px #0000000f;max-width:500px;padding:2rem}
-/*# sourceMappingURL=515.443f0ac1.chunk.css.map*/
