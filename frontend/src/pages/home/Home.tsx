@@ -77,6 +77,7 @@ export default function Home() {
     }
 
     setLoadingMore(false);
+    
     requestAnimationFrame(() => {
       if (div) {
         div.scrollTop = previousScrollPosition.current;
@@ -148,15 +149,6 @@ export default function Home() {
   useEffect(() => {
     dispatch(setFavorites(favorites));
   }, [favorites, dispatch]);
-
-  useEffect(() => {
-    const div = scrollableDivRef.current;
-    if (div) {
-      requestAnimationFrame(() => {
-        div.scrollTop = previousScrollPosition.current;
-      });
-    }
-  });
 
   return (
     <Template>
