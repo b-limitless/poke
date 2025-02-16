@@ -9,7 +9,8 @@ In a scenario where Pokémon data needs to be fetched frequently, fetching from 
 ## Technologies Used
 
 - **Backend**: NestJS, TypeScript, MongoDB
-- **Frontend**: ReactJS, TypeScript, MUI, SCSS, Webpack
+- **Frontend**: ReactJS, TypeScript, MUI, SCSS, Webpack, Redux, React Query
+- **Cloud**: EC2, mongodb, pm2, nginx, Node.js, NPM, Yarn 
 
 
 ## How to Run the Project Locally
